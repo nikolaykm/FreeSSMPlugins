@@ -61,22 +61,37 @@ def init():
     cam = pygame.camera.Camera("/dev/video0", (640,320))
     cam.start()
 
-    while 1:
+    cameraActive = True
+    while cameraActive:
         image = cam.get_image()
         screen.blit(image,(0,0))
         pygame.display.update()
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONUP:
-                sys.exit()
+                cam.stop()
+                pygame.display.quit()
+                cameraActive = False
+                #sys.exit()
 
         time.sleep(0.01)
 
 TCP_IP = '127.0.0.1'
 TCP_PORT = 12345
 BUFFER_SIZE = 1024
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((TCP_IP, TCP_PORT))
+
+isConnected=False
+while not isConnected:
+    isConnected=False
+    try:
+        print >>sys.stderr, '\n Trying to connect to IP: %s, Port: %s' %(TCP_IP,TCP_PORT)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((TCP_IP, TCP_PORT))
+        isConnected=True
+    except:
+        print >>sys.stderr, '\n Unable to connect!'
+        isConnected=False
+        time.sleep(0.5)
 
 while True:
     print >>sys.stderr, '\nwaiting to receive message'
