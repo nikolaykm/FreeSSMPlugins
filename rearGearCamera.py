@@ -58,7 +58,7 @@ def init():
     #screen = pygame.display.set_mode([320,240], pygame.FULLSCREEN)
 
     #1824 x 984
-    cam = pygame.camera.Camera("/dev/video0", (640,320))
+    cam = pygame.camera.Camera("/dev/video1", (640,320))
     cam.start()
 
     cameraActive = True
