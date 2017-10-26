@@ -21,22 +21,42 @@ while not isConnected:
         isConnected=False
         time.sleep(0.5)
 
-f = open('stats-'+str(time.time()), 'w')
+    if not isConnected:
+        continue
 
-curList = []
-while True:
-    print >>sys.stderr, '\nwaiting to receive message'
-    data = sock.recv(BUFFER_SIZE)
-    print >>sys.stderr, 'received %s bytes' % (len(data))
-    print >>sys.stderr, data
-    
-    if data and len(data) > 4:
-        data = data[4:]
-        ds = data.split(",")
-        print ds
-        curList.append(ds[0]);
-        if (ds[4] == "3"):
-            f.write(curList[0] + "," + curList[1] + "," + curList[2] + "," + curList[3] + "," + str(time.time()) + "\n")
+    f = open('stats-'+str(time.time()), 'w')
+
+    countEmptyData=0
+
+    while True:
+        print >>sys.stderr, '\nwaiting to receive message'
+        data = sock.recv(BUFFER_SIZE)
+        print >>sys.stderr, 'received %s bytes' % (len(data))
+        print >>sys.stderr, data
+
+        if len(data) == 0:
+            countEmptyData = countEmptyData + 1
+
+        if countEmptyData == 3:
+            isConnected=False
+            sock.close()
             f.flush()
+            f.close()
+            break;
+
+        if data and len(data) > 4:
+            countEmptyData = 0
+            dataArray = data.split(",@\x00")
+            print dataArray
             curList = []
+            for item in dataArray:
+                dataItem = item[4:]
+                ds = dataItem.split(",")
+                print ds 
+                if (len(ds) == 5):
+                    curList.append(ds[0]);
+                    if (ds[4] == "2"):
+                        f.write(curList[0] + "," + curList[1] + "," + curList[2] + "," + str(time.time()) + "\n")
+                        f.flush()
+                        curList = []
 

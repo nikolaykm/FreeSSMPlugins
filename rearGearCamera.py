@@ -93,15 +93,33 @@ while not isConnected:
         isConnected=False
         time.sleep(0.5)
 
-while True:
-    print >>sys.stderr, '\nwaiting to receive message'
-    data = sock.recv(BUFFER_SIZE)
-    print >>sys.stderr, 'received %s bytes' % (len(data))
-    print >>sys.stderr, data
+    if not isConnected:
+        continue
+
+    countEmptyData=0
+
+    while True:
+        print >>sys.stderr, '\nwaiting to receive message'
+        data = sock.recv(BUFFER_SIZE)
+        print >>sys.stderr, 'received %s bytes' % (len(data))
+        print >>sys.stderr, data
+
+        if len(data) == 0:
+            countEmptyData = countEmptyData + 1
+
+        if countEmptyData == 3:
+            isConnected=False
+            sock.close()
+            break;
     
-    if data and len(data) > 4:
-        data = data[4:]
-        ds = data.split(",")
-        print ds
-        if (ds[0] == "1" or ds[0] == "On"):
-            init()
+        if data and len(data) > 4:
+            countEmptyData = 0
+            dataArray = data.split(",@\x00")
+            print dataArray
+            for item in dataArray:
+                dataItem = item[4:]
+                ds = dataItem.split(",")
+                print ds
+                if (ds[0] == "On"):
+                    init()
+                    break;

@@ -21,23 +21,48 @@ while not isConnected:
         isConnected=False
         time.sleep(0.5)
 
-while True:
-    print >>sys.stderr, '\nwaiting to receive message'
-    data = sock.recv(BUFFER_SIZE)
-    print >>sys.stderr, 'received %s bytes' % (len(data))
-    print >>sys.stderr, data
-    
-    if data and len(data) > 4:
-        data = data[4:]
-        ds = data.split(",")
-        print ds
-        if (ds[4] == "0" and ds[0] == "On"):
-            bashCommand = "fswebcam -r 640x480 image-" + str(time.time()) + ".jpg -S 20"
-            os.system(bashCommand)
-        if (ds[4] == "2" and ds[0] == "On"):
-            bashCommand = "timeout 60 avconv -f video4linux2 -r 30 -s 640x480 -i /dev/video0 test" + str(time.time()) + ".avi"
-            os.system(bashCommand)
+    if not isConnected:
+        continue
 
-        if (ds[4] == "1" and ds[0] == "On"):
-            bashCommand = "sudo fswebcam -d /dev/video1 -r 640x480 image-r-" + str(time.time()) + ".jpg -S 20"
-            os.system(bashCommand)
+    countEmptyData=0
+
+    while True:
+        print >>sys.stderr, '\nwaiting to receive message'
+        data = sock.recv(BUFFER_SIZE)
+        print >>sys.stderr, 'received %s bytes' % (len(data))
+        print >>sys.stderr, data
+
+        if len(data) == 0:
+            countEmptyData = countEmptyData + 1
+
+        if countEmptyData == 3:
+            isConnected=False
+            sock.close()
+            break;
+   
+
+        if data and len(data) > 4:
+            countEmptyData = 0
+            dataArray = data.split(",@\x00")
+            print dataArray
+            for item in dataArray:
+                dataItem = item[4:]
+                ds = dataItem.split(",")
+                print ds
+                if len(ds) == 5: 
+
+                    if (ds[4] == "1" and ds[0] == "On"):
+                        bashCommand = "fswebcam -r 640x480 image-" + str(time.time()) + ".jpg -S 20"
+                        os.system(bashCommand)
+
+                    if (ds[4] == "2" and ds[0] == "On"):
+                        bashCommand = "timeout 60 avconv -f video4linux2 -r 30 -s 640x480 -i /dev/video0 test" + str(time.time()) + ".avi"
+                        os.system(bashCommand)
+
+                    if (ds[4] == "0" and ds[0] == "On"):
+                        bashCommand = "sudo fswebcam -d /dev/video1 -r 640x480 image-r-" + str(time.time()) + ".jpg -S 20"
+                        os.system(bashCommand)
+
+                    if (ds[4] == "3" and ds[0] == "On"):
+                        bashCommand = "sudo timeout 60 avconv -f video4linux2 -r 30 -s 640x480 -i /dev/video1 test-r" + str(time.time()) + ".avi"
+                        os.system(bashCommand)
