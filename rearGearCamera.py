@@ -6,11 +6,16 @@ import pygame.display
 from pygame.locals import *
 import socket
 import sys
+import signal
+
+def signal_term_handler(signal, frame):
+    print 'got SIGTERM'
+    cam.stop()
+    sys.exit(0)
+ 
+signal.signal(signal.SIGTERM, signal_term_handler)
 
 def init():
-
-    pygame.init()
-    pygame.camera.init()
 
     pygame.display.init()
     info = pygame.display.Info()
@@ -47,20 +52,6 @@ def init():
 
     screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 
-    # Clear the screen to start
-    #screen.fill((255, 0, 0))
-
-    # Render the screen
-    #pygame.display.update()
-
-    #time.sleep(10)
-
-    #screen = pygame.display.set_mode([320,240], pygame.FULLSCREEN)
-
-    #1824 x 984
-    cam = pygame.camera.Camera("/dev/video1", (640,320))
-    cam.start()
-
     cameraActive = True
     while cameraActive:
         image = cam.get_image()
@@ -69,12 +60,23 @@ def init():
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONUP:
-                cam.stop()
                 pygame.display.quit()
                 cameraActive = False
-                #sys.exit()
 
         time.sleep(0.01)
+
+sucInit=False
+while not sucInit:
+    try:
+        pygame.init()
+        pygame.camera.init()
+        #1824 x 984
+        cam = pygame.camera.Camera("/dev/video1", (640,320))
+        cam.start()
+        sucInit=True
+    except SystemError:
+        sucInit=False
+    
 
 TCP_IP = '127.0.0.1'
 TCP_PORT = 12345
@@ -99,6 +101,10 @@ while not isConnected:
     countEmptyData=0
 
     while True:
+        if sock == None:
+            isConnected = False
+            break
+
         print >>sys.stderr, '\nwaiting to receive message'
         data = sock.recv(BUFFER_SIZE)
         print >>sys.stderr, 'received %s bytes' % (len(data))
@@ -120,6 +126,13 @@ while not isConnected:
                 dataItem = item[4:]
                 ds = dataItem.split(",")
                 print ds
-                if (ds[0] == "On"):
-                    init()
-                    break;
+                if len(ds) == 5:
+                    if (ds[0] == "On"):
+                        init()
+                        sock.shutdown(socket.SHUT_RDWR)
+                        sock.close()
+                        sock = None
+                        break;
+
+
+cam.stop()
