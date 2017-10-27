@@ -7,6 +7,7 @@ from pygame.locals import *
 import socket
 import sys
 import signal
+import subprocess as sub
 
 def signal_term_handler(signal, frame):
     print 'got SIGTERM'
@@ -68,14 +69,18 @@ def init():
 sucInit=False
 while not sucInit:
     try:
+        bashCommand = "sudo rmmod uvcvideo; sudo modprobe uvcvideo;"
+        p = sub.Popen(bashCommand, stdout=sub.PIPE, stderr=sub.PIPE, shell=True);
+
         pygame.init()
         pygame.camera.init()
         #1824 x 984
-        cam = pygame.camera.Camera("/dev/video1", (640,320))
+        cam = pygame.camera.Camera("/dev/video1", (640,480))
         cam.start()
         sucInit=True
     except SystemError:
-        sucInit=False
+        sucIinit=False
+        time.sleep(1)
     
 
 TCP_IP = '127.0.0.1'

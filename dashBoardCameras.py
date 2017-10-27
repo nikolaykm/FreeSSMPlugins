@@ -121,8 +121,9 @@ while not isConnected:
                         break
 
                     if (ds[4] == "3" and ds[0] == "On"):
-                        message_display("Taking BACK video!", screen)
                         screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+
+                        message_display("Taking BACK video!", screen)
                         while True:
                             bashCommand = "sudo rmmod uvcvideo; sudo modprobe uvcvideo; sudo timeout 60 avconv -f video4linux2 -r 30 -s 640x480 -i /dev/video1 test-r" + str(time.time()) + ".avi; sudo rmmod uvcvideo; sudo modprobe uvcvideo;"
                             p = sub.Popen(bashCommand, stdout=sub.PIPE, stderr=sub.PIPE, shell=True);
