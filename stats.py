@@ -80,6 +80,7 @@ TCP_PORT = 12345
 BUFFER_SIZE = 8192
 
 prevText = []
+prevRects = []
 
 isConnected=False
 while not isConnected:
@@ -165,7 +166,20 @@ while not isConnected:
                         updatedRects.append(message_display(screen, curList[2] + " " + curUnits[2], 0+cw/2, ch+ch/2, white))
                         updatedRects.append(message_display(screen, curList[3] + " " + curUnits[3], cw+cw/2, ch+ch/2, white))
 
-                        pygame.display.update(updatedRects)
+                        bigestRects = []
+                        for x in range(0,4):
+                            uSize = updatedRects[x].width * updatedRects[x].height
+                            pSize = 0
+                            if len(prevRects) == 4:
+                                pSize = prevRects[x].width * prevRects[x].height
+                            if uSize > pSize:
+                                bigestRects.append(updatedRects[x])
+                            else:
+                                bigestRects.append(prevRects[x])
+
+                        pygame.display.update(bigestRects)
+
+                        prevRects = updatedRects
 
                         prevText.append(curList[0] + " " + curUnits[0])
                         prevText.append(curList[1] + " " + curUnits[1])
