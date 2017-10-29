@@ -44,6 +44,18 @@ for driver in drivers:
 if not found:
     raise Exception('No suitable video driver found!')
 
+
+def text_objects(text, font, color):
+    textSurface = font.render(text, True, color)
+    return textSurface, textSurface.get_rect()
+
+def message_display(screen, text, cx, cy, color, fontSize):
+    largeText = pygame.font.Font('freesansbold.ttf', fontSize)
+    TextSurf, TextRect = text_objects(text, largeText, color)
+    TextRect.center = (cx, cy)
+    return screen.blit(TextSurf, TextRect)
+
+
 size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
 print ("Framebuffer size: %d x %d" % (size[0], size[1]))
 
@@ -59,21 +71,16 @@ pygame.draw.line(screen,
                  (pygame.display.Info().current_w/2, 0),
                  (pygame.display.Info().current_w/2, pygame.display.Info().current_h))
 
+cw = pygame.display.Info().current_w/2
+ch = pygame.display.Info().current_h/2
+
+message_display(screen, "Engine speed", 0+cw/2, 10, white, 15)
+message_display(screen, "Engine load", cw+cw/2, 10, white, 15)
+message_display(screen, "Vehicle speed", 0+cw/2, ch + 10, white, 15)
+message_display(screen, "Acc. pedal pos.", cw+cw/2, ch + 10, white, 15)
+
 
 pygame.display.update()
-
-
-
-
-def text_objects(text, font, color):
-    textSurface = font.render(text, True, color)
-    return textSurface, textSurface.get_rect()
-
-def message_display(screen, text, cx, cy, color):
-    largeText = pygame.font.Font('freesansbold.ttf',50)
-    TextSurf, TextRect = text_objects(text, largeText, color)
-    TextRect.center = (cx, cy)
-    return screen.blit(TextSurf, TextRect)
 
 TCP_IP = '127.0.0.1'
 TCP_PORT = 12345
@@ -149,9 +156,6 @@ while not isConnected:
                         f.write(curList[0] + "," + curList[1] + "," + curList[2] + "," + curList[3] + "," + str(time.time()) + "\n")
                         f.flush()
 
-                        cw = pygame.display.Info().current_w/2
-                        ch = pygame.display.Info().current_h/2
-
                         if len(prevText) > 0:
                             message_display(screen, prevText[0], 0+cw/2, 0+ch/2, black)
                             message_display(screen, prevText[1], cw+cw/2, 0+ch/2, black)
@@ -161,10 +165,10 @@ while not isConnected:
 
                         updatedRects = []
 
-                        updatedRects.append(message_display(screen, curList[0] + " " + curUnits[0], 0+cw/2, 0+ch/2, white))
-                        updatedRects.append(message_display(screen, curList[1] + " " + curUnits[1], cw+cw/2, 0+ch/2, white))
-                        updatedRects.append(message_display(screen, curList[2] + " " + curUnits[2], 0+cw/2, ch+ch/2, white))
-                        updatedRects.append(message_display(screen, curList[3] + " " + curUnits[3], cw+cw/2, ch+ch/2, white))
+                        updatedRects.append(message_display(screen, curList[0] + " " + curUnits[0], 0+cw/2, 0+ch/2, white, 50))
+                        updatedRects.append(message_display(screen, curList[1] + " " + curUnits[1], cw+cw/2, 0+ch/2, white, 50))
+                        updatedRects.append(message_display(screen, curList[2] + " " + curUnits[2], 0+cw/2, ch+ch/2, white, 50))
+                        updatedRects.append(message_display(screen, curList[3] + " " + curUnits[3], cw+cw/2, ch+ch/2, white, 50))
 
                         bigestRects = []
                         for x in range(0,4):
