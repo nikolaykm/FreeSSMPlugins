@@ -157,10 +157,10 @@ while not isConnected:
                         f.flush()
 
                         if len(prevText) > 0:
-                            message_display(screen, prevText[0], 0+cw/2, 0+ch/2, black)
-                            message_display(screen, prevText[1], cw+cw/2, 0+ch/2, black)
-                            message_display(screen, prevText[2], 0+cw/2, ch+ch/2, black)
-                            message_display(screen, prevText[3], cw+cw/2, ch+ch/2, black)
+                            message_display(screen, prevText[0], 0+cw/2, 0+ch/2, black, 50)
+                            message_display(screen, prevText[1], cw+cw/2, 0+ch/2, black, 50)
+                            message_display(screen, prevText[2], 0+cw/2, ch+ch/2, black, 50)
+                            message_display(screen, prevText[3], cw+cw/2, ch+ch/2, black, 50)
                             prevText = []
 
                         updatedRects = []
