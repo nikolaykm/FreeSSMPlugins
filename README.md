@@ -1,1 +1,1 @@
-# PythonCameraTest
+# FreeSSM plugin prototypes 
